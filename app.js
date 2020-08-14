@@ -10,6 +10,8 @@ loadEventListeners();
 
 // load all event listeners
 function loadEventListeners() {
+    // DOM load event (storeTasks)
+    document.addEventListener('DOMContentLoaded', getTasks);
     // add task event
     form.addEventListener('submit', addTask);
     // remove task event
@@ -18,6 +20,41 @@ function loadEventListeners() {
     clearBtn.addEventListener('click', clearTasks);
     // filter tasks events
     filter.addEventListener('keyup', filterTasks);
+}
+
+// get tasks from ls
+function getTasks(){
+    let tasks;
+    if(localStorage.getItem('tasks') === null){
+        tasks = [];
+    }else{
+        tasks = JSON.parse(localStorage.getItem('tasks'));
+    }
+    tasks.forEach(function(task){
+    // create li elements
+    const li = document.createElement('li');
+
+    // add class
+    li.className = 'collection-item';
+
+    // create text node and appent to li (taskInput is the form value you add)
+    li.appendChild(document.createTextNode(task));
+
+    // create new link element
+    const link = document.createElement('a');
+
+    // add class
+    link.className = 'delete-item secondary-content';
+
+    // add icon html
+    link.innerHTML = '<i class="fa fa-remove"></i>';
+
+    // append the link to li
+    li.appendChild(link);
+
+    //append li to ul
+    taskList.appendChild(li);
+    });
 }
 
 // add task
@@ -49,10 +86,26 @@ function addTask(e) {
     //append li to ul
     taskList.appendChild(li);
 
+    // store in local storage
+    storeTaskInLocalStorage(taskInput.value);
+
+
     //clear input
     taskInput.value = '';
     
     e.preventDefault();
+}
+
+// store task
+function storeTaskInLocalStorage(task){
+    let tasks;
+    if(localStorage.getItem('tasks') === null){
+        tasks = [];
+    }else{
+        tasks = JSON.parse(localStorage.getItem('tasks'));
+    }
+    tasks.push(task);
+    localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
 // remove an unic task
@@ -85,8 +138,8 @@ function filterTasks(e){
     document.querySelectorAll('.collection-item').forEach(
         function(task){
         const item = task.firstChild.textContent;
-        // -1 means deleted item from the query
         if(item.toLowerCase().indexOf(text) != -1 ){
+        // only display items same as input typed 
             task.style.display = 'block';
         }else{
             task.style.display = 'none';
